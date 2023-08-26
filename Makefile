@@ -357,6 +357,16 @@ else ifeq ($(platform), retrofw)
 	CFLAGS += -fomit-frame-pointer -march=mips32 -mtune=mips32 -mhard-float
 	PLATFORM_DEFINES += -DRETROFW
 
+#MIYOO
+else ifeq ($(platform), miyoo)
+	TARGET := $(TARGET_NAME)_libretro.so
+	CC = /opt/miyoo/usr/bin/arm-linux-gcc
+	CXX = /opt/miyoo/usr/bin/arm-linux-g++
+	AR = /opt/miyoo/usr/bin/arm-linux-ar
+	fpic := -fPIC
+	SHARED := -shared -Wl,-version-script=link.T -Wl,-no-undefined
+	CFLAGS += -fomit-frame-pointer -march=armv5te -mtune=arm926ej-s
+
 # emscripten
 else ifeq ($(platform), emscripten)
 	TARGET := $(TARGET_NAME)_libretro_emscripten.bc
@@ -497,8 +507,7 @@ ifeq ($(LOG_PERFORMANCE), 1)
 endif
 
 
-DEFINES := -D__LIBRETRO__ $(PLATFORM_DEFINES) -DINLINE="inline"
-DEFINES += -DHAVE_CONFIG_H
+DEFINES := -D__LIBRETRO__ $(PLATFORM_DEFINES) -DINLINE="inline" -DHAVE_CONFIG_H
 
 CFLAGS   += $(fpic) $(DEFINES)
 CFLAGS   += -Wall
@@ -526,7 +535,7 @@ ifneq (,$(findstring msvc,$(platform)))
 	LINKOUT = -out:
 	LD = link.exe
 else ifneq ($(platform),genode)
-	LD = $(CXX)
+	LD = $(CC)
 endif
 
 %.o: %.cpp
